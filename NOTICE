@@ -1,0 +1,31 @@
+Third-party credits
+
+This repository is a personal portfolio project. It is not a product of any
+employer, and it does not claim an employment relationship.
+
+LiveKit agent starter
+  https://github.com/livekit-examples/agent-starter-python
+  MIT License, Copyright (c) 2025 LiveKit, Inc.
+  The worker in src/uzbek_voice_agent/agent.py follows that starter's
+  AgentServer / rtc_session / AgentSession / room-connect shape. The starter's
+  cloud STT, TTS, and LLM calls are not included.
+
+LiveKit Agents framework
+  https://github.com/livekit/agents
+  Apache License 2.0
+  Used as a dependency when the realtime worker is installed (`pip install -e ".[agent]"`).
+
+NavAI Whisper-small Uzbek
+  https://huggingface.co/navai-uz/whisper-small-uzbek
+  Apache License 2.0
+  Model weights are downloaded at runtime from Hugging Face. They are not
+  vendored in this repository. Please cite NavAI when reporting numbers from
+  this model.
+
+NavAI documents scoring with uzbek_text_norm (Apache-2.0). If that package is
+installed, eval uses it. The committed subset numbers in this repo state which
+normalizer actually ran.
+
+Evaluation audio is streamed from the public google/fleurs uz_uz test split
+(CC-BY-4.0) at eval time. It is not stored in this repository and is never used
+for training.
