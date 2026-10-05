@@ -39,10 +39,21 @@ def _reference_text(row: dict[str, Any]) -> str:
 
 
 def _audio_array(row: dict[str, Any]) -> tuple[Any, int]:
+    """Read a datasets audio cell. Bytes are decoded with soundfile so eval does not need torchcodec."""
+    import io
+
+    import soundfile as sf
+
     audio = row["audio"]
-    if isinstance(audio, dict) and "array" in audio and "sampling_rate" in audio:
+    if not isinstance(audio, dict):
+        raise TypeError("expected an audio dict")
+    if audio.get("array") is not None and audio.get("sampling_rate") is not None:
         return audio["array"], int(audio["sampling_rate"])
-    raise TypeError("expected datasets Audio decoding with array and sampling_rate")
+    payload = audio.get("bytes")
+    if not payload:
+        raise TypeError("audio cell has neither decoded samples nor bytes")
+    samples, sample_rate = sf.read(io.BytesIO(payload), dtype="float32", always_2d=False)
+    return samples, int(sample_rate)
 
 
 def load_test_slice(dataset: str, config: str, split: str, limit: int) -> list[dict[str, Any]]:
@@ -55,7 +66,8 @@ def load_test_slice(dataset: str, config: str, split: str, limit: int) -> list[d
     from datasets import Audio, load_dataset
 
     loaded = load_dataset(dataset, config, split=split, streaming=True)
-    loaded = loaded.cast_column("audio", Audio(decode=True))
+    # decode=False keeps the wav bytes. soundfile reads them; torchcodec is not required.
+    loaded = loaded.cast_column("audio", Audio(decode=False))
     rows: list[dict[str, Any]] = []
     for index, row in enumerate(loaded):
         if index >= limit:
@@ -66,13 +78,32 @@ def load_test_slice(dataset: str, config: str, split: str, limit: int) -> list[d
     return rows
 
 
+def unique_rows(
+    rows: list[dict[str, Any]],
+) -> tuple[list[tuple[int, dict[str, Any]]], list[dict[str, Any]]]:
+    """Keep the first row for each id. Streaming can repeat an utterance."""
+    seen: set[Any] = set()
+    kept: list[tuple[int, dict[str, Any]]] = []
+    dropped: list[dict[str, Any]] = []
+    for index, row in enumerate(rows):
+        row_id = row.get("id")
+        if row_id is not None and row_id in seen:
+            dropped.append({"index": index, "id": row_id})
+            continue
+        if row_id is not None:
+            seen.add(row_id)
+        kept.append((index, row))
+    return kept, dropped
+
+
 def evaluate(args: argparse.Namespace) -> dict[str, Any]:
     rows = load_test_slice(args.dataset, args.config, args.split, args.limit)
+    kept, dropped = unique_rows(rows)
     asr = UzbekASR(device=args.device)
     references: list[str] = []
     hypotheses: list[str] = []
     items: list[dict[str, Any]] = []
-    for index, row in enumerate(rows):
+    for index, row in kept:
         reference = _reference_text(row)
         samples, sample_rate = _audio_array(row)
         hypothesis = asr.transcribe_array(samples, sample_rate)
@@ -97,10 +128,13 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
         "split": args.split,
         "n": rates.n_utterances,
         "requested_n": args.limit,
+        "rows_read": len(rows),
+        "dropped_duplicate_ids": dropped,
         "selection": (
             f"first {args.limit} rows of {args.dataset} {args.config} {args.split} "
-            "in Hugging Face streaming order"
+            "in Hugging Face streaming order, with repeated ids dropped before scoring"
         ),
+        "reference_field": "transcription",
         "trained_on_this_split": False,
         "decode": GENERATE_KWARGS,
         "normalizer": normalization_backend(),

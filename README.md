@@ -92,19 +92,29 @@ LiveKit Cloud is optional. Set `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_AP
 
 ## Eval
 
+Install NavAI's scorer first so the numbers match the table. It is Apache-2.0 and is not on PyPI under that name:
+
 ```bash
+pip install "uzbek-text-norm @ git+https://github.com/NavAI-pro/uzbek-text-norm.git"
 make eval-asr LIMIT=8
 ```
+
+Measured on this machine (CPU, greedy decode, `num_beams=1`, `no_repeat_ngram_size=4`). Source file: `eval/fleurs_uz_prefix.json`. The model was not trained for this run, and the test split was not used to fit weights.
 
 | Item | Value |
 | --- | --- |
 | Model | `navai-uz/whisper-small-uzbek` |
 | Set | `google/fleurs`, config `uz_uz`, split `test` |
-| Slice | first 8 rows in Hugging Face streaming order |
-| Training | not run; the test split is not used to fit weights |
-| Numbers | filled from `eval/fleurs_uz_prefix.json` after a local run |
+| Slice | first 8 streamed rows; id `1882` was repeated, so **7 unique utterances** were scored |
+| Reference field | `transcription` |
+| Normalizer | `uzbek_text_norm` 0.3.0, reference and hypothesis |
+| Reference words / chars | 133 / 1057 |
+| **WER** | **14.29%** |
+| **CER** | **7.00%** |
 
-NavAI's own card reports **16.96 WER** on the full FLEURS Uzbek test set, **9.58 WER** on Common Voice 22 Uzbek test, and **11.57 macro WER** across FLEURS, Common Voice, USC, and FeruzaSpeech. Those figures are theirs, scored with `uzbek_text_norm` on the full sets. A prefix of FLEURS measured here will not match them.
+Scoring the repeated row as well would count one perfect utterance twice and print 12.50% WER on 8 rows. The table drops that repeat.
+
+NavAI's card reports **16.96 WER** on the full FLEURS Uzbek test set, **9.58 WER** on Common Voice 22 Uzbek test, and **11.57 macro WER** across FLEURS, Common Voice, USC, and FeruzaSpeech. Those are their full-set figures. 14.29% on 7 utterances is not that result. One clip in this slice (id `1685`, about 35 mm film) is badly wrong; several others match.
 
 ## Tests
 
@@ -122,7 +132,8 @@ make ci
 - TTS is not wired, so the LiveKit worker does not speak audio back.
 - Telephony and SIP are out of scope.
 - This repo does not fine-tune Whisper.
-- Subset WER/CER is not the NavAI leaderboard number.
+- Subset WER/CER is 7 utterances. It is not NavAI's full-set FLEURS number.
+- Without `uzbek_text_norm`, `make eval-asr` falls back to a smaller local normalizer and the JSON says so. Digit spelling will not match the table above.
 - Far-field noise, strong dialect, and rare names are weak spots called out on the model card.
 - Demo LiveKit keys in `deploy/livekit.yaml` are not a production secret.
 

@@ -36,15 +36,6 @@ def local_normalize(text: str) -> str:
     return _SPACES.sub(" ", folded).strip()
 
 
-def _navai_normalize(text: str) -> str:
-    import uzbek_text_norm
-
-    normalize = getattr(uzbek_text_norm, "normalize", None)
-    if normalize is None:
-        raise AttributeError("uzbek_text_norm.normalize is missing")
-    return str(normalize(text))
-
-
 def normalization_backend() -> str:
     try:
         import uzbek_text_norm
@@ -55,10 +46,21 @@ def normalization_backend() -> str:
         return "repo-local-v1"
 
 
-def normalize_transcript(text: str) -> str:
+def normalize_pair(reference: str, hypothesis: str) -> tuple[str, str]:
+    """Normalize a gold/hypothesis pair with the same rules on both sides."""
     if normalization_backend().startswith("uzbek_text_norm"):
         try:
-            return _navai_normalize(text)
+            import uzbek_text_norm
+
+            return (
+                uzbek_text_norm.normalize_reference(reference),
+                uzbek_text_norm.normalize_hypothesis(hypothesis),
+            )
         except Exception:
-            return local_normalize(text)
-    return local_normalize(text)
+            pass
+    return local_normalize(reference), local_normalize(hypothesis)
+
+
+def normalize_transcript(text: str) -> str:
+    """Single-string helper. Scoring uses normalize_pair so refs and hyps stay aligned."""
+    return normalize_pair(text, text)[0]

@@ -92,7 +92,7 @@ def build_server() -> object:
     )
     from livekit.agents import llm as lk_llm
     from livekit.agents import stt as lk_stt
-    from livekit.agents.types import NOT_GIVEN
+    from livekit.agents.types import DEFAULT_API_CONNECT_OPTIONS, NOT_GIVEN
 
     class UzbekWhisperSTT(lk_stt.STT):
         def __init__(self, asr: UzbekASR | None = None) -> None:
@@ -127,7 +127,7 @@ def build_server() -> object:
         def provider(self) -> str:
             return "uzbek-voice-agent"
 
-        def chat(self, *, chat_ctx, tools=None, conn_options, **kwargs):
+        def chat(self, *, chat_ctx, tools=None, conn_options=DEFAULT_API_CONNECT_OPTIONS, **kwargs):
             del tools, kwargs
             return EchoStream(self, chat_ctx=chat_ctx, conn_options=conn_options)
 
@@ -164,6 +164,8 @@ def build_server() -> object:
         await ctx.connect()
 
     server.cli = cli  # type: ignore[attr-defined]
+    server.stt_factory = UzbekWhisperSTT  # type: ignore[attr-defined]
+    server.llm_factory = EchoLLM  # type: ignore[attr-defined]
     return server
 
 

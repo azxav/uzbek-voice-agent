@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 import jiwer
 
-from uzbek_voice_agent.normalize import normalize_transcript
+from uzbek_voice_agent.normalize import normalize_pair
 
 
 @dataclass(frozen=True)
@@ -20,7 +20,7 @@ class ErrorRates:
 
 
 def _normalize_pair(reference: str, hypothesis: str) -> tuple[str, str]:
-    return normalize_transcript(reference), normalize_transcript(hypothesis)
+    return normalize_pair(reference, hypothesis)
 
 
 def score_utterances(references: list[str], hypotheses: list[str]) -> ErrorRates:

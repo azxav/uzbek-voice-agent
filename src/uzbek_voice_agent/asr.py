@@ -53,7 +53,7 @@ class UzbekASR:
             "automatic-speech-recognition",
             model=self.model_id,
             device=self.device,
-            torch_dtype=dtype,
+            dtype=dtype,
         )
         return self._pipeline
 
