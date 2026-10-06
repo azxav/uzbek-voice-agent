@@ -1,0 +1,78 @@
+{
+  "model": "navai-uz/whisper-small-uzbek",
+  "device": "cpu",
+  "dataset": "google/fleurs",
+  "config": "uz_uz",
+  "split": "test",
+  "n": 7,
+  "requested_n": 8,
+  "rows_read": 8,
+  "dropped_duplicate_ids": [
+    {
+      "index": 5,
+      "id": 1882
+    }
+  ],
+  "selection": "first 8 rows of google/fleurs uz_uz test in Hugging Face streaming order, with repeated ids dropped before scoring",
+  "reference_field": "transcription",
+  "trained_on_this_split": false,
+  "decode": {
+    "language": "uz",
+    "task": "transcribe",
+    "num_beams": 1,
+    "no_repeat_ngram_size": 4
+  },
+  "normalizer": "uzbek_text_norm@0.3.0",
+  "wer": 0.14285714285714285,
+  "cer": 0.07000946073793755,
+  "wer_percent": 14.29,
+  "cer_percent": 7.0,
+  "n_ref_words": 133,
+  "n_ref_chars": 1057,
+  "skipped_empty_reference": 0,
+  "items": [
+    {
+      "index": 0,
+      "id": 1666,
+      "reference": "siz shuningdek oʻzingiznikidan boshqa hukumatlar maslahatini olishni xohlashingiz mumkin biroq ularning maslahati oʻzlarining fuqarolari uchun moʻljallangan",
+      "hypothesis": "siz shuningdek oʻzingiznikidan boshqa hukumatlar maslahatini olishni xohlashingiz mumkin biroq ularning maslahati oʻzlarining fuqarolari uchun moʻljallangan"
+    },
+    {
+      "index": 1,
+      "id": 1802,
+      "reference": "internet oʻzida ommaviy hamda shaxslararo aloqa elementlarini mujassamlashtiradi",
+      "hypothesis": "internet oʻzida ommaviy hamda shaxslararo aloqa elementlarini mujassamlashtiradi"
+    },
+    {
+      "index": 2,
+      "id": 1882,
+      "reference": "olimlar sayyoralar qanday qilib shakllanishini ayniqsa yer qanday shakllanganini tushunishga umid qiladilar chunki kometalar ancha avval yer bilan toʻqnashgan",
+      "hypothesis": "olimlar sayyoralar qanday qilib shakllanishini ayniqsa yer qanday shakllanganini tushunishga umid qiladilar chunki kometalar ancha avval yer bilan toʻqnashgan"
+    },
+    {
+      "index": 3,
+      "id": 1685,
+      "reference": "masalan dunyodagi eng keng suratga olish formati 35 mm boʻlib bu analog fotoplyonkalar davri yakunida ustun boʻlgan fotoplyonka oʻlchami boʻlgan",
+      "hypothesis": "masalan dunyodagi eng keng suratkash formati oʻtkazish million metr boʻlib bu anan qatʻatablenkoga davriyakunduzdin boʻlgan patoplyonko jam boʻlsgan"
+    },
+    {
+      "index": 4,
+      "id": 1864,
+      "reference": "kirchner xonim argentina teatrida prezidentlikka nomzodini qoʻyishni niyat qilganini eʼlon qildi xuddi shu joyda u 2005-yili buenos-ayres provinsiyasi delegatsiyasi aʼzosi sifatida senat uchun oʻz kampaniyasini boshlagandi",
+      "hypothesis": "kirchner xonim argentina teatrida prezidentlikka nomzodini qoʻyishni niyat qilganini eʻlon qildi xuddi shu joyda u ikki ming besh yili buenos air provinsiyasi delegatsiyasi aʻzosi sifatida senat uchun oʻz kompaniyasini boshlagandi"
+    },
+    {
+      "index": 6,
+      "id": 2004,
+      "reference": "aynan shu oyda boshqa bir samolyot uchish-qoʻnish yoʻlagidan chiqib ketib devorga urilgan va oʻn yetti kishi vafot etgandi",
+      "hypothesis": "aynan shu oyda boshqa bir samolyot oʻchirish qoʻnish yoʻlagidan chiqib ketib devorga urilgan va oʻn yetti kishi vafot etgandi"
+    },
+    {
+      "index": 7,
+      "id": 1705,
+      "reference": "1940-yilning 15-avgustida ittifoqchilar janubiy fransiyaga bostirib kirdi bu bosqin ajdar operatsiyasi deb atalgan",
+      "hypothesis": "bir ming toʻqqiz yuz qirq yilning oʻn besh avgustida ittifoqchilar janubiy fransiyaga bostirib kirdi bu bosqin ajdar operatsiyasi deb atalgan"
+    }
+  ],
+  "note": "Subset metric only. Not comparable to NavAI's full-set FLEURS WER unless n covers the entire test split and the normalizer matches theirs. Hypotheses are from one CPU run; this file was rescored with uzbek_text_norm after dropping the repeated id, without running the model again."
+}

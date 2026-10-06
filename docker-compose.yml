@@ -1,0 +1,40 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      ASR_DEVICE: cpu
+      LIVEKIT_URL: ${LIVEKIT_URL:-ws://localhost:7880}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-devkey}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-secret}
+    volumes:
+      - hf-cache:/cache/huggingface
+
+  livekit:
+    profiles: ["realtime"]
+    image: livekit/livekit-server:v1.9.0
+    command: --config /etc/livekit.yaml
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "50000-50020:50000-50020/udp"
+    volumes:
+      - ./deploy/livekit.yaml:/etc/livekit.yaml:ro
+
+  agent:
+    profiles: ["realtime"]
+    build: .
+    command: ["python", "-m", "uzbek_voice_agent.agent", "start"]
+    environment:
+      ASR_DEVICE: cpu
+      LIVEKIT_URL: ws://livekit:7880
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-devkey}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-secret}
+    depends_on:
+      - livekit
+    volumes:
+      - hf-cache:/cache/huggingface
+
+volumes:
+  hf-cache:
